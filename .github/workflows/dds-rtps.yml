@@ -10,24 +10,28 @@ concurrency:
 jobs:
 
   Linux:
+    timeout-minutes: 30
     runs-on: ubuntu-22.04
     steps:
     - name: checkout OpenDDS
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: OpenDDS
         submodules: true
+        persist-credentials: false
     - name: checkout dds-rtps
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: omg-dds/dds-rtps
         path: dds-rtps
+        persist-credentials: false
     - name: checkout ACE_TAO
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: DOCGroup/ACE_TAO
         ref: Latest_Micro
         path: OpenDDS/ACE_TAO
+        persist-credentials: false
     - name: get ACE_TAO commit
       shell: bash
       run: |
@@ -40,16 +44,17 @@ jobs:
         export COMPILER_VERSION=$(g++ --version 2>&1 | head -n 1)
         echo "COMPILER_VERSION=$COMPILER_VERSION" >> $GITHUB_ENV
     - name: checkout MPC
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: DOCGroup/MPC
         path: OpenDDS/ACE_TAO/ACE/MPC
+        persist-credentials: false
     - name: configure OpenDDS
       run: |
         cd OpenDDS
         ./configure --optimize --no-debug --static --no-inline
         tools/scripts/show_build_config.pl
-    - uses: ammaraskar/gcc-problem-matcher@0.3.0
+    - uses: ammaraskar/gcc-problem-matcher@0f9c86f9e693db67dacf53986e1674de5f2e5f28 # 0.3.0
     - name: build OpenDDS
       shell: bash
       run: |
@@ -70,7 +75,7 @@ jobs:
         cp dds-rtps/srcCxx/opendds-cmake/build/shape_main \
           dds-rtps/srcCxx/opendds-cmake/build/opendds-${OPENDDS_VERSION}_shape_main_linux
     - name: upload shape_main artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: opendds-${{ env.OPENDDS_VERSION }}_shape_main_linux
         path: dds-rtps/srcCxx/opendds-cmake/build/opendds-${{ env.OPENDDS_VERSION }}_shape_main_linux

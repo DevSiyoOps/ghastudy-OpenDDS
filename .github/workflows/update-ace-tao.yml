@@ -11,15 +11,17 @@ concurrency:
 
 jobs:
   update-ace-tao:
+    timeout-minutes: 30
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout OpenDDS
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: OpenDDS
         submodules: true
+        persist-credentials: false
     - name: Install Perl Dependencies
-      uses: shogo82148/actions-setup-perl@v1.44.2
+      uses: shogo82148/actions-setup-perl@8b574cdc2dffdae49f803204a4f2b716a2fa1db7 # v1.44.2
       with:
         install-modules: |
           Pithub
@@ -45,14 +47,14 @@ jobs:
           git config user.email noreply@github.com
           git add --all
           git commit --file "${commit_msg}" \
-            --author "${{github.actor}} <${{github.actor}}@users.noreply.github.com>"
+            --author "${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
           echo "PR_TITLE=$(cat ${prefix}pr-title.md)" >> $GITHUB_ENV
           echo "PR_BODY_FILE=${prefix}pr-body.md" >> $GITHUB_ENV
         else
           echo "CREATE_PULL_REQUEST=false" >> $GITHUB_ENV
         fi
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
       if: env.CREATE_PULL_REQUEST == 'true'
       id: cpr
       with:
@@ -67,5 +69,8 @@ jobs:
     - name: Check outputs
       if: ${{ steps.cpr.outputs.pull-request-number }}
       run: |
-        echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-        echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+        echo "Pull Request Number - ${STEPS_CPR_OUTPUTS_PULL_REQUEST_NUMBER}"
+        echo "Pull Request URL - ${STEPS_CPR_OUTPUTS_PULL_REQUEST_URL}"
+      env:
+        STEPS_CPR_OUTPUTS_PULL_REQUEST_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+        STEPS_CPR_OUTPUTS_PULL_REQUEST_URL: ${{ steps.cpr.outputs.pull-request-url }}
